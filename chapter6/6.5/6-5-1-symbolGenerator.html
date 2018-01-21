@@ -1,0 +1,67 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>6.5.1 符号生成器</title>  
+  </head> 
+  <style>
+
+  </style>
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+var width  = 500;	//SVG绘制区域的宽度
+var height = 500;	//SVG绘制区域的高度
+	
+var svg = d3.select("body")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+
+
+//数组长度
+var n = 30;
+
+//数组
+var dataset = [];
+
+//给数组添加元素
+for(var i=0;i<n;i++){
+	dataset.push( { 
+		//符号的大小
+		size: Math.random() * 30 + 200,
+		//符号的类型
+		type: d3.svg.symbolTypes[ Math.floor( Math.random() * d3.svg.symbolTypes.length )]
+	} );
+}
+
+console.log(dataset);
+
+//创建一个符号生成器
+var symbol = d3.svg.symbol()
+				.size(function(d){ return d.size; })
+				.type(function(d){ return d.type; });
+
+var color = d3.scale.category20b();
+				
+//添加路径
+svg.selectAll()
+	.data(dataset)
+	.enter()
+	.append("path")
+	.attr("d",function(d){ return symbol(d); })	
+	.attr("transform",function(d,i){
+		var x = 100 + i%5 * 20;
+		var y = 100 + Math.floor(i/5) * 20;
+		return "translate(" + x + "," + y + ")";
+	})
+	.attr("fill",function(d,i){ return color(i); });
+	
+	
+
+
+</script> 
+
+</body>
+</html>

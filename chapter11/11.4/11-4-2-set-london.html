@@ -1,0 +1,88 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>11.4.2 设置地图的原点为伦敦</title>  
+  </head> 
+  <style>
+	.country {
+		fill: #ccc;
+		stroke: white;
+		stroke-width: 1px;
+	}
+	
+	.border{
+		fill: none;
+		stroke: black;
+		stroke-width: 1px;
+	}
+	
+	.axis {
+		stroke: black;
+		stroke-width: 2px;
+	}
+  </style>
+<body>
+<script src="../../d3/d3.min.js"></script>
+<script>
+
+var width = 800,
+	height = 400;
+	
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+
+var projection = d3.geo.equirectangular()
+					.center([0, 51.5])					//中心设置为伦敦
+					.scale(100)							//缩放因子
+					.translate([600, 200]);				//以(600,200)处为坐标原点
+					
+	
+var path = d3.geo.path()
+				.projection(projection);
+	
+	
+var color = d3.scale.category20();
+
+
+
+d3.json("world_605kb.json", function(error, root) {
+	if (error) 
+		return console.error(error);
+
+	var groups = svg.append("g");
+		
+	groups.selectAll("path")
+			.data( root.features )
+			.enter()
+			.append("path")
+			.attr("class","country")
+			.attr("d",path);
+			
+	svg.append("rect")
+		.attr("class","border")
+		.attr("x",0)
+		.attr("y",0)
+		.attr("width",width)
+		.attr("height",height);
+	
+	svg.append("line")
+		.attr("class","axis")
+		.attr("x1",0)
+		.attr("y1",200)
+		.attr("x2",width)
+		.attr("y2",200);
+		
+	svg.append("line")
+		.attr("class","axis")
+		.attr("x1",600)
+		.attr("y1",0)
+		.attr("x2",600)
+		.attr("y2",height);
+});
+
+</script>
+		
+    </body>  
+</html>  

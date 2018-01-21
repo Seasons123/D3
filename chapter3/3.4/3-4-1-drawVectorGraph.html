@@ -1,0 +1,28 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>3.4 绘制矢量图</title>  
+  </head> 
+<body>
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> 
+<script>  
+var width  = 400;	//SVG绘制区域的宽度
+var height = 400;	//SVG绘制区域的高度
+	
+var svg = d3.select("body")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+			
+svg.append("circle")
+	.attr("cx","50px")
+	.attr("cy","50px")
+	.attr("r","50px")
+	.attr("fill","blue");
+	
+</script> 
+
+</body>
+
+</html>

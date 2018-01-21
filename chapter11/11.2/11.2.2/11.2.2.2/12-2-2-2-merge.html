@@ -1,0 +1,108 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>11.2.2.2 合并东南地区</title>  
+  </head> 
+  <style>
+	.province {
+		stroke: black;
+		stroke-width: 1px;
+	}
+  
+	.southsea {
+		stroke: black;
+		stroke-width: 1px;
+		fill: #ccc;
+	}
+
+  </style>
+<body>
+<script src="../../../../d3/d3.min.js" charset="utf-8"></script> 
+<script src="../../../../d3/topojson.js"></script>
+<script>
+
+var width = 700,
+	height = 700;
+	
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+
+var projection = d3.geo.mercator()
+						.center([107, 31])
+						.scale(600)
+    					.translate([width/2, height/2]);
+	
+var path = d3.geo.path()
+				.projection(projection);
+	
+	
+var color = d3.scale.category20();
+	
+	
+d3.json("china.topojson", function(error, toporoot) {
+	if (error) 
+		return console.error(error);
+	
+	//输出china.topojson的对象
+	console.log(toporoot);
+	
+	//将TopoJSON对象转换成GeoJSON，保存在georoot中
+	var georoot = topojson.feature(toporoot,toporoot.objects.china);
+	
+	//输出GeoJSON对象
+	console.log(georoot);
+	
+	//东南各省名称的集合
+	var southeast = d3.set([
+			"广东","海南","福建","浙江","江西","江苏","台湾","上海","香港","澳门"
+		]);
+	
+	//合并东南各省
+	var mergedPolygon = topojson.merge(toporoot,
+						toporoot.objects.china.geometries.filter( function(d){ 
+							return  southeast.has(d.properties.name); 
+						})
+					);
+	
+	//输出合并结果
+	console.log(mergedPolygon);
+
+	//绘制除了东南各省之外的中国地图，颜色为灰色
+	var groups = svg.append("g");
+	
+	groups.selectAll("path")
+			.data( georoot.features.filter(function(d){ return !southeast.has(d.properties.name); }) )
+			.enter()
+			.append("path")
+			.attr("class","province")
+			.style("fill", "#ccc")
+			.attr("d", path );
+	
+	//绘制东南各省，颜色为蓝色
+	svg.append("path")
+			.datum( mergedPolygon )
+			.attr("class","province")
+			.style("fill","blue")
+			.attr("d", path );
+});
+	
+	
+d3.xml("southchinasea.svg", function(error, xmlDocument) {
+	svg.html(function(d){
+		return d3.select(this).html() + xmlDocument.getElementsByTagName("g")[0].outerHTML;
+	});
+	
+	var gSouthSea = d3.select("#southsea");
+	
+	gSouthSea.attr("transform","translate(540,410)scale(0.5)")
+		.attr("class","southsea");
+
+});
+
+
+</script>
+		
+    </body>  
+</html>  

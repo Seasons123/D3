@@ -1,0 +1,46 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>9.2.1 d3-downloadable</title>  
+		<link rel="stylesheet" href="d3-downloadable/d3-downloadable.css"/>
+  </head>
+<style>
+
+</style>  
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script src="d3-downloadable/d3-downloadable.js"></script>
+<script>  
+
+var width  = 500;	//SVG区域的宽度
+var height = 500;	//SVG区域的高度
+	
+var svg = d3.select("body")	
+			.append("svg")
+			.attr("width", width)
+			.attr("height", height);
+
+svg.append("rect")
+	.attr("x",100)
+	.attr("y",100)
+	.attr("width",100)
+	.attr("height",100)
+	.style("fill","red");
+	
+svg.append("circle")
+	.attr("cx",300)
+	.attr("cy",150)
+	.attr("r",50)
+	.style("fill","blue");
+	
+svg.call(d3.downloadable({
+	width: width,
+	height: height,
+	filename: "filename"
+}));
+
+</script> 
+
+</body>
+</html>

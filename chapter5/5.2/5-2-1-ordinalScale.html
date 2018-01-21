@@ -1,0 +1,48 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>5.2.1 序数比例尺</title>  
+  </head> 
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+
+var ordinal = d3.scale.ordinal()
+				.domain([1,2,3,4,5])
+				.rangePoints([0,100]);
+				
+console.log( ordinal.range() );
+console.log( ordinal(1) );
+console.log( ordinal(3) );
+console.log( ordinal(5) );
+
+ordinal.rangePoints([0,100],5);
+console.log( ordinal.range() );
+
+ordinal.rangeRoundPoints([0,100],5);
+console.log( ordinal.range() );
+
+
+var bands = d3.scale.ordinal()
+				.domain([1,2,3,4,5])
+				.rangeBands([0,100]);
+
+console.log( bands.range() );
+console.log( bands.rangeBand() );
+
+bands.rangeBands([0,100],0.5,0.2);
+console.log( bands.range() );
+console.log( bands.rangeBand() );
+
+var color = d3.scale.category10();
+
+console.log( color(1) );
+console.log( color("zhangsan") );
+	
+</script> 
+
+</body>
+
+</html>

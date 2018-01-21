@@ -1,0 +1,83 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>11.3.2.4 球体地图上的圆形网格</title>  
+  </head> 
+  <style>
+	.geocircle {
+		fill: none;
+		stroke: #333;
+		stroke-width: 1px;
+	}
+	
+	.country {
+		stroke: black;
+		stroke-width: 1px;
+	}
+  </style>
+<body>
+<script src="../../../d3/d3.min.js"></script>
+<script src="../../../d3/topojson.js"></script>
+<script>
+
+var width = 1000,
+	height = 600;
+	
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+
+var projection = d3.geo.orthographic()
+					.center([0, 0])
+					.scale(300)
+					.rotate([-50,0])
+					.clipAngle(90)
+    				.translate([width/2, height/2]);
+	
+var path = d3.geo.path()
+				.projection(projection);
+	
+	
+var color = d3.scale.category20();
+	
+var angles = d3.range(0,180,5);
+
+var geocircle = d3.geo.circle()
+					.origin([77,-19]);
+
+svg.append("g")
+	.selectAll(".geocircle")
+	.data(angles)
+	.enter() 
+	.append("path")
+	.attr("class", "geocircle")
+	.attr("d", function(d){
+		var circle = geocircle.angle(d);	//设定角度
+		return path( circle() ); 	//生成网格的GeoJSON并获取路径
+	});
+
+
+d3.json("world_605kb.json", function(error, root) {
+	if (error) 
+		return console.error(error);
+
+	var groups = svg.append("g");
+		
+	groups.selectAll("path")
+			.data( root.features )
+			.enter()
+			.append("path")
+			.attr("class","country")
+			.style("fill", function(d,i){
+				return color(i);
+			})
+			.attr("d",path);
+});
+
+
+
+</script>
+		
+    </body>  
+</html>  

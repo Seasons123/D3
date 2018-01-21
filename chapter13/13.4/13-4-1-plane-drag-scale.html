@@ -1,0 +1,115 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>13.4.1 平面地图的拖拽和缩放</title>  
+  </head> 
+  <style>
+	.graticule {
+		fill: none;
+		stroke: #333;
+		stroke-width: 1px;
+	}
+	
+	.country {
+		stroke: black;
+		stroke-width: 1px;
+	}
+
+	.overlay {
+		fill: none;
+		pointer-events: all;
+	}
+  </style>
+<body>
+<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+<script>
+
+var width = 1000,
+	height = 600;
+	
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+
+var projection = d3.geo.mercator()
+					.center([0, 0])
+					.scale(260)
+    				.translate([width/2, height/2]);
+	
+var path = d3.geo.path()
+				.projection(projection);
+	
+	
+var color = d3.scale.category20();
+	
+
+var eps = 1e-4;
+	
+var graticule = d3.geo.graticule()
+					.extent([[-180, -90],[180+eps, 90]])
+					.step([10,10]);
+					
+var grid = graticule();
+
+var gridPath = svg.append("path")
+			.datum(grid)
+			.attr("class","graticule")
+			.attr("d",path);
+
+
+d3.json("world.json", function(error, root) {
+	if (error) 
+		return console.error(error);
+
+	var groups = svg.append("g");
+		
+	var countries = groups.selectAll("path")
+						.data( root.features )
+						.enter()
+						.append("path")
+						.attr("class","country")
+						.style("fill", function(d,i){
+							return color(i);
+						})
+						.attr("d",path);
+
+	//投影初始平移量和缩放量
+	var initTran = projection.translate();
+	var initScale = projection.scale();
+
+	var zoom = d3.behavior.zoom()
+				.scaleExtent([1, 10])
+				.on("zoom", function(d){
+
+					//更新投影函数的平移量
+					projection.translate([ initTran[0] + d3.event.translate[0],
+										   initTran[1] + d3.event.translate[1] ]);
+					
+					//更新投影函数的缩放量
+					projection.scale( initScale * d3.event.scale );
+	
+
+					//重绘地图
+					countries.attr("d",path);
+
+					//重绘经纬度网格
+					gridPath.attr("d",path);
+				});
+
+	svg.append("rect")
+		.attr("class","overlay")
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("width",width)
+		.attr("height",height)
+		.call(zoom);
+
+});
+
+
+
+</script>
+		
+    </body>  
+</html>  

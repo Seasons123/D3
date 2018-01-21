@@ -1,0 +1,70 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>8.3.3 缩放2</title>  
+  </head> 
+  <style>
+
+  </style>
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+var width  = 400;	//SVG绘制区域的宽度
+var height = 400;	//SVG绘制区域的高度
+	
+var svg = d3.select("body")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+			
+/*在定义缩放行为的时候，使用了x()和y()定义了比例尺，则随着缩放的变化，比例尺的定义域也会发生变化。
+初始定义域分别为【1，width】，【0，height】*/
+var x = d3.scale.linear()
+    .domain([0, width])
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .domain([0, height])
+    .range([0, height]);
+			
+var circles = [ { cx: 150, cy:200, r:30 },
+				{ cx: 220, cy:200, r:30 },
+				{ cx: 150, cy:270, r:30 },
+				{ cx: 220, cy:270, r:30 }];
+		
+var zoom = d3.behavior.zoom()		//创建一个缩放行为
+			.x(x)
+			.y(y)
+			.scaleExtent([1, 10])	//设置缩放的范围
+			.on("zoom", function(d){
+				console.log("x 的定义域：" + x.domain());
+				console.log("x 的值域：" + x.range());
+				console.log("y 的定义域：" + y.domain());
+				console.log("y 的值域：" + y.range());
+				d3.select(this).attr("transform", 
+					"translate(" + d3.event.translate + ")" +	//平移量
+					"scale(" + d3.event.scale + ")");	//缩放量
+			});
+			
+		
+var g = svg.append("g")
+			.call(zoom);
+		
+var circles = g.selectAll("circle")
+				.data(circles)
+				.enter()
+				.append("circle")
+				.attr("cx",function(d){ return d.cx; })
+				.attr("cy",function(d){ return d.cy; })
+				.attr("r",function(d){ return d.r; })
+				.attr("fill","black");
+				
+
+	
+</script> 
+
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>7.1.2.3 text和tween  课本P 156</title>
+  </head> 
+  <style>
+  </style>
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+var width  = 500;	//SVG绘制区域的宽度
+var height = 500;	//SVG绘制区域的高度
+	
+var svg = d3.select("body")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+
+var rect = svg.append("rect")
+				.attr("fill","steelblue")
+				.attr("x",10)
+				.attr("y",10)
+				.attr("width",100)
+				.attr("height",30);
+
+var rectTran = rect.transition()
+					.duration(2000)
+					.attrTween("width",    //手动设置插值函数.该过度将width属性从100过渡到400，所用时间为2000ms
+						function(d, i, a) {   //是课本P155的形式
+							return function(t){ //参数t的范围是【0,1】，0表示变化的起始，1表示变化的结束
+								return Number(a) + t * 300;
+							}
+						}
+					);
+
+//矩形上添加文字，用来标识矩形的宽度
+var text = svg.append("text")
+				.attr("fill","white")
+				.attr("x",100)
+				.attr("y",10)
+				.attr("dy","1.2em")
+				.attr("text-anchor","end")
+				.text(100);
+
+var initx = text.attr("x");
+var initText = text.text();
+
+//矩形的宽度在变化的时候，文字也要跟着变化
+var textTran = text.transition()
+					.duration(2000)
+					.tween("text",function(){  //对文字进行过度要用到tween（）
+						return function(t){   //t的范围是【0,1】,随着时间的推移，文字的内容和文字的位置都是变化的
+							d3.select(this)
+								.attr("x",Number(initx) + t * 300)
+								.text(Math.floor(Number(initText) + t * 300));
+						}
+					});
+
+</script> 
+
+</body>
+</html>

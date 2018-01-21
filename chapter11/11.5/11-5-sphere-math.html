@@ -1,0 +1,107 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>11.5 球面数学</title>  
+  </head> 
+  <style>
+	.province {
+		stroke: black;
+		stroke-width: 1px;
+	}
+  
+	.southsea {
+		stroke: black;
+		stroke-width: 1px;
+		fill: red;
+	}
+	
+	.graticule {
+		fill: none;
+		stroke: #333;
+		stroke-width: 1px;
+	}
+	
+  </style>
+<body>
+<script src="../../d3/d3.min.js"></script>
+<script src="../../d3/topojson.js"></script>
+<script>
+
+var width = 700,
+	height = 700;
+	
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+
+var projection = d3.geo.mercator()
+						.center([107, 31])
+						.scale(600)
+    					.translate([width/2, height/2]);
+	
+var path = d3.geo.path()
+				.projection(projection);
+	
+var color = d3.scale.category20();
+	
+	
+d3.json("china.topojson", function(error, toporoot) {
+	if (error) 
+		return console.error(error);
+	
+	//输出china.topojson的对象
+	console.log(toporoot);
+	
+	//将TopoJSON对象转换成GeoJSON，保存在georoot中
+	var georoot = topojson.feature(toporoot,toporoot.objects.china);
+	
+	//输出GeoJSON对象
+	console.log(georoot);
+
+	var groups = svg.append("g");
+		
+	groups.selectAll("path")
+			.data( georoot.features )
+			.enter()
+			.append("path")
+			.attr("class","province")
+			.style("fill",function(d,i){ return color(i); })
+			.attr("d", path );
+	
+	var province = georoot.features[0];
+	
+	var area = d3.geo.area(province);
+	var centroid = d3.geo.centroid(province);
+	var bounds = d3.geo.bounds(province);
+	
+	console.log(province.properties.name);
+	console.log(Number(area) * 6371 * 6371);
+	console.log(centroid);
+	console.log(bounds);
+	
+	var beijing = [116.4, 39.9];		//北京的经纬度
+	var shanghai = [121.5, 31.2];		//上海的经纬度
+		
+	var dis = d3.geo.distance(beijing, shanghai);
+	var length = d3.geo.length(province);
+	var interpolator = d3.geo.interpolate(beijing, shanghai);
+	
+	console.log( interpolator(0) );			//输出北京的经纬度
+	console.log( interpolator(0.5) );		//输出北京-上海的中点的经纬度
+	console.log( interpolator(1) );			//输出上海的经纬度
+	
+	var rotation = d3.geo.rotation([30,0]);
+	var posRotated = rotation(beijing);
+	
+	console.log( posRotated );
+	console.log( rotation.invert(posRotated) );
+});
+	
+	
+
+
+</script>
+		
+    </body>  
+</html>  

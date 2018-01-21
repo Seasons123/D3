@@ -1,0 +1,168 @@
+<html>  
+<head>  
+	<meta charset="utf-8">  
+	<title>10.9.1 直方图</title>  
+<style>
+
+.axis path,
+.axis line{
+	fill: none;
+	stroke: black;
+	shape-rendering: crispEdges;
+}
+ 
+.axis text {
+	font-family: sans-serif;
+	font-size: 11px;
+}
+
+.rect {
+	fill: steelblue;
+}
+
+.linePath {
+	fill: none;
+	stroke: black;
+	stroke-width: 3px;
+}
+
+</style>
+</head> 
+<body>  
+	<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+	<script>
+	
+	var width  = 500;	//SVG绘制区域的宽度
+	var height = 500;	//SVG绘制区域的高度
+			
+	var svg = d3.select("body")			//选择<body>
+				.append("svg")			//在<body>中添加<svg>
+				.attr("width", width)	//设定<svg>的宽度属性
+				.attr("height", height);//设定<svg>的高度属性
+	
+	//1. 确定初始数据
+	
+	//创建一个生成正态分布的函数，其中平均值为170，标准差为10
+	var rand = d3.random.normal(170,10);
+	
+	//定义一个数组，用于保存正态分布生成的数值
+	var dataset = [];
+	
+	//根据正态分布生成100个随机数，插入到数组dataset中
+	for(var i=0; i<100; i++){
+		dataset.push( rand() );
+	}
+	
+	//输出数组到控制台
+	console.log(dataset);
+
+	//2. 转换数据
+	
+	var binNum = 20,
+		rangeMin = 130,
+		rangeMax = 210;
+		
+	var histogram = d3.layout.histogram()
+						.range([rangeMin, rangeMax])	//数据分布的范围
+						.bins(binNum)	//bins的数量
+						.frequency(true);	//按照数量统计的方式
+	
+	var hisData = histogram(dataset);
+	console.log(hisData);
+	
+	//3. 绘制
+	
+	//定义x轴比例尺
+	var xAxisWidth = 450,
+		xTicks = hisData.map( function(d){ return d.x; } );
+	
+	var xScale = d3.scale.ordinal()
+					.domain(xTicks)
+					.rangeRoundBands([0, xAxisWidth],0.1);
+	
+	
+	//定义y轴比例尺
+	var yAxisWidth = 450;
+
+	var yScale = d3.scale.linear()
+					.domain([ d3.min(hisData, function(d){ return d.y; }),
+							  d3.max(hisData, function(d){ return d.y; }) ])
+					.range([5, yAxisWidth]);
+					
+	//外边框
+	var padding = { top: 30 , right: 30, bottom: 30, left: 30 };
+	
+	//绘制x轴
+	var xAxis = d3.svg.axis()
+				.scale(xScale)
+				.orient("bottom")
+				.tickFormat(d3.format(".0f"));
+					
+	svg.append("g")
+			.attr("class","axis")
+			.attr("transform","translate(" + padding.left + "," + (height - padding.bottom) +  ")")
+			.call(xAxis);
+	
+	console.log(xScale.range());
+	console.log(xScale.rangeBand());
+	console.log(xScale(130));
+	console.log(xScale(134));
+	
+	//绘制矩形
+	var gRect = svg.append("g")
+					.attr("transform","translate(" + padding.left + "," + ( -padding.bottom ) +  ")")
+					.style("opacity",1.0);
+	
+	gRect.selectAll("rect")
+			.data(hisData)
+			.enter()
+			.append("rect")
+			.attr("class","rect")
+			.attr("x",function(d,i){	//x坐标
+				return xScale(d.x);
+			})
+			.attr("y", function(d,i){	//y坐标
+				return height - yScale(d.y);
+			})
+			.attr("width", function(d,i){	//宽度
+				return xScale.rangeBand(); 
+			})
+			.attr("height", function(d){	//高度
+				return yScale(d.y);
+			});
+			
+	//绘制曲线		
+	var lineGenerator = d3.svg.line()
+							.x(function(d){ return xScale(d.x); })
+							.y(function(d){ return height - yScale(d.y); })
+							.interpolate("basis");
+	
+	var gLine = svg.append("g")
+					.attr("transform","translate(" + padding.left + "," + ( -padding.bottom ) +  ")")
+					.style("opacity",0.0);
+	
+	gLine.append("path")
+		.attr("class","linePath")
+		.attr("d",lineGenerator(hisData));
+			
+	
+
+	function showRect(){
+		//显示矩形，不显示曲线
+		gRect.style("opacity",1.0);
+		gLine.style("opacity",0.0);
+	}
+	
+	function showLine(){
+		//显示曲线，不显示矩形
+		gRect.style("opacity",0.0);
+		gLine.style("opacity",1.0);
+	}
+			
+	</script>	
+	<br />&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+	<button onclick="showRect()">显示矩形</button>
+	<button onclick="showLine()">显示曲线</button>
+		
+</body>  
+</html>  

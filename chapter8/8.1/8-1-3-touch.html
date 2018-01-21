@@ -1,0 +1,65 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>8.1.3 触屏交互</title>  
+  </head> 
+  <style>
+  
+.axis path,
+.axis line{
+	fill: none;
+	stroke: black;
+	shape-rendering: crispEdges;
+}
+ 
+.axis text {
+	font-family: sans-serif;
+	font-size: 11px;
+}
+
+  </style>
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+var width  = 400;	//SVG绘制区域的宽度
+var height = 400;	//SVG绘制区域的高度
+	
+var svg = d3.select("body")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+
+var rect = svg.append("rect")
+				.attr("x",220)
+				.attr("y",150)
+				.attr("width",100)
+				.attr("height",100)
+				.attr("fill","blue");
+			
+var circle = svg.append("circle")
+				.attr("cx",150)
+				.attr("cy",200)
+				.attr("r",50)
+				.attr("fill","blue")
+				.on("touchstart",function(){
+					d3.select(this).attr("fill","yellow");
+				})
+				.on("touchmove",function(){
+					var pos = d3.touches(this)[0];		//获取第一个触摸点
+					d3.select(this)
+						.attr("cx",pos[0])		//触摸点的x坐标
+						.attr("cy",pos[1]);		//触摸点的y坐标
+				})
+				.on("touchend",function(){
+					d3.select(this).attr("fill","blue");
+				});
+				
+
+	
+</script> 
+
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>6.6.1 弦生成器</title>  
+  </head> 
+  <style>
+
+  </style>
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+var width  = 500;	//SVG绘制区域的宽度
+var height = 500;	//SVG绘制区域的高度
+	
+var svg = d3.select("body")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+
+
+var dataset = {	source:{ startAngle: 0.2 , endAngle: Math.PI * 0.3 , radius: 100 },
+				target:{ startAngle: Math.PI * 1.0 , endAngle: Math.PI * 1.6 , radius:100 }};
+
+//创建一个弦生成器
+var chord = d3.svg.chord();
+				
+//添加路径
+svg.append("path")
+	.attr("d",chord(dataset)  )	
+	.attr("transform","translate(200,200)")
+	.attr("fill","yellow")
+	.attr("stroke","black")
+	.attr("stroke-width",3);
+	
+	
+
+
+</script> 
+
+</body>
+</html>

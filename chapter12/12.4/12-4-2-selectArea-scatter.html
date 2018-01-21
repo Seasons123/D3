@@ -1,0 +1,125 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>12.4.2 散点图的区域选择</title>  
+  <style>
+    .axis path,
+    .axis line{
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+    }
+     
+    .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+    }
+  </style>
+  </head> 
+<body>
+<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+<script>
+
+var width = 500;
+var height = 500;
+
+var svg = d3.select("body")
+           .append("svg")
+	         .attr("width", width)
+	         .attr("height", height);
+
+//边界空白
+var padding = {left: 50, right: 50, top: 50, bottom: 50};
+
+//x轴的比例尺
+var xScale = d3.scale.linear()
+                .domain([0, 10])
+                .range([padding.left, width - padding.right]);
+
+//y轴的比例尺
+var yScale = d3.scale.linear()
+                .domain([10, 0])
+                .range([padding.top, height - padding.bottom]);
+
+//散点图的数据
+var dataset = [];
+
+for(var i=0; i<150; i++){
+    dataset.push([Math.random()*10, Math.random()*10]);
+}
+
+//添加散点
+var circles = svg.selectAll("circle")
+                  .data(dataset)
+                  .enter()
+                  .append("circle")
+                  .attr("cx",function(d){
+                    return xScale(d[0]);
+                  })
+                  .attr("cy",function(d){
+                    return yScale(d[1]);
+                  })
+                  .attr("r",5)
+                  .style("fill","black");
+
+
+//x轴生成器
+var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom");
+
+//y轴生成器
+var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left");
+
+//添加x轴的相关元素
+svg.append("g")
+    .attr("class","axis")
+    .attr("transform","translate(" + 0 + "," + (height - padding.bottom) +  ")")
+    .call(xAxis);
+
+//添加y轴的相关元素  
+svg.append("g")
+    .attr("class","axis")
+    .attr("transform","translate(" + padding.left + "," + 0 +  ")")
+    .call(yAxis); 
+
+
+var brush = d3.svg.brush()
+              .x(xScale)
+              .y(yScale)
+              .extent([[0, 0], [0, 0]])
+              .on("brush",brushed);
+
+function brushed(){
+
+    //选择框的范围
+    var extent = brush.extent();
+    var xmin = extent[0][0];
+    var xmax = extent[1][0];
+    var ymin = extent[0][1];
+    var ymax = extent[1][1];
+
+    circles.style("fill",function(d){
+        //如果散点的坐标在选择框范围内，变为红色，否则为黑色
+        if( d[0] >= xmin && d[0] <= xmax &&
+            d[1] >= ymin && d[1] <= ymax ){
+            return "red";
+        }else{
+            return "black";
+        }
+    });
+}
+
+//添加刷子的相关元素到一个g里
+svg.append("g")
+    .call(brush)
+    .selectAll("rect")
+    .style("fill-opacity",0.3);
+
+
+</script>
+		
+    </body>  
+</html>  

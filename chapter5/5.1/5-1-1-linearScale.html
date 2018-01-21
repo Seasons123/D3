@@ -1,0 +1,52 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>5.1.1 线性比例尺</title>  
+  </head> 
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+
+var linear = d3.scale.linear()
+				.domain([0,20])
+				.range([0,100]);
+				
+console.log( linear(10) );
+console.log( linear(30) );
+console.log( linear.invert(80) );
+
+
+linear.clamp(true);
+console.log( linear(30) );
+
+linear.rangeRound([0,100]);
+console.log( linear(13.33) );
+
+linear.domain([0.12300000,0.4888888888]).nice();
+console.log( linear.domain() );
+linear.domain([33.611111,45.97745]).nice();
+console.log( linear.domain() );
+
+/*
+var linear = d3.scale.linear()
+				.domain([-20,20])
+				.range([0,100]);
+
+var ticks = linear.ticks(5);
+console.log(ticks);
+
+var tickFormat = linear.tickFormat(5,"+");
+for(var i=0;i<ticks.length;i++){
+	ticks[i] = tickFormat(ticks[i]);
+}
+console.log(ticks);
+*/
+	
+	
+</script> 
+
+</body>
+
+</html>

@@ -1,0 +1,135 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>Map Force</title>  
+  </head> 
+<style>
+
+.link {
+	stroke: #444;
+	stroke-width: 1;
+}
+
+</style>
+<body>
+<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+<script>
+	var width  = 1000;
+	var height = 1000;
+	
+	var svg = d3.select("body").append("svg")
+	    .attr("width", width)
+	    .attr("height", height)
+	    .append("g")
+	    .attr("transform", "translate(0,0)");
+
+	var force = d3.layout.force()
+					.size([width, height]);	
+
+	var projection = d3.geo.mercator()
+						.center([107, 31])
+						.scale(850)
+    					.translate([width/2, height/2]);
+	
+
+	var path = d3.geo.path()
+					.projection(projection);
+	
+
+	var color = d3.scale.category20();
+	
+
+	d3.json("china.geojson", function(error, root) {
+		
+		if (error) 
+			return console.error(error);
+		console.log(root.features);
+		
+		var nodes = [];
+		
+		root.features.forEach(function(d, i) {
+			//计算省份的中心坐标
+			var centroid = path.centroid(d);
+
+			//定义两个变量x和y，保存中心坐标
+			centroid.x = centroid[0];
+			centroid.y = centroid[1];
+
+			//将地理特征保存在对象里
+			centroid.feature = d;
+
+			//添加到节点数组中
+			nodes.push(centroid);
+		});
+
+
+
+		var voronoi = d3.geom.voronoi()
+							.x(function(d){
+								return d.x;
+							})
+							.y(function(d){
+								return d.y;
+							});
+
+		var links = voronoi.links(nodes);
+		
+		console.log(nodes);
+		console.log(links);
+		
+		force.gravity(0)
+			.charge(0)
+			.linkDistance(function(d){
+				var dx = d.source.x - d.target.x;
+				var dy = d.source.y - d.target.y;
+				return Math.sqrt( dx*dx + dy*dy );
+			})
+			.nodes(nodes)
+			.links(links)
+			.start();
+		
+		var nodeGroups = svg.selectAll("g")
+						.data(nodes)
+						.enter().append("g")
+						.attr("transform", function(d) { return "translate(" + -d.x + "," + -d.y + ")"; })
+      					.call(force.drag)
+				        .append("path")
+				        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+				        .attr("stroke","#000")
+				        .attr("stroke-width",1)
+				        .attr("fill", function(d,i){
+				            return color(i);
+				        })
+				        .attr("d", function(d){
+				        	return path(d.feature);
+				        } );
+		
+		var lines = svg.selectAll("line")
+						.data(links)
+						.enter()
+						.append("line")
+						.attr("class","link")
+						.attr("x1",function(d) { return d.source.x; } )
+						.attr("y1",function(d) { return d.source.y; } )
+						.attr("x2",function(d) { return d.target.x; } )
+						.attr("y2",function(d) { return d.target.y; } );
+		
+		force.on("tick", function() {
+
+			lines.attr("x1", function(d) { return d.source.x; })
+			     .attr("y1", function(d) { return d.source.y; })
+			     .attr("x2", function(d) { return d.target.x; })
+			     .attr("y2", function(d) { return d.target.y; });
+
+			nodeGroups.attr("transform", function(d) {
+			     return "translate(" + d.x + "," + d.y + ")";
+			});
+		});
+		
+		
+	});
+
+</script>
+	
+</body>  
+</html>  

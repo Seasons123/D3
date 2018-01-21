@@ -1,0 +1,73 @@
+<html>  
+<head>  
+	<meta charset="utf-8">  
+	<title>10.10.1 矩形分区图</title>  
+<style>
+
+.nodeText {
+	writing-mode: tb;
+	font-family: simsun;
+	font-size: 16px;
+}
+
+</style>
+</head> 
+<body>  
+	<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+	<script>
+	
+	var width  = 800;	//SVG绘制区域的宽度
+	var height = 700;	//SVG绘制区域的高度
+			
+	var svg = d3.select("body")			//选择<body>
+				.append("svg")			//在<body>中添加<svg>
+				.attr("width", width)	//设定<svg>的宽度属性
+				.attr("height", height);//设定<svg>的高度属性
+	
+	
+	var partition = d3.layout.partition()
+				.sort(null)
+				.size([800,500])
+				.value(function(d) { return 1; });
+
+
+	d3.json("city.json", function(error, root) {
+
+		if(error)
+			console.log(error);
+		console.log(root);
+
+		var nodes = partition.nodes(root);
+		var links = partition.links(nodes);
+
+		console.log(nodes);
+		
+		var color = d3.scale.category20();
+
+		var gRects = svg.selectAll("g")
+					  .data(nodes)
+					  .enter()
+					  .append("g");
+		
+		gRects.append("rect")
+			.attr("x", function(d) { return d.x; })  
+			.attr("y", function(d) { return d.y; })  
+			.attr("width", function(d) { return d.dx; })  
+			.attr("height", function(d) { return d.dy; })  
+			.style("stroke", "#fff")
+			.style("fill", function(d) { return color((d.children ? d : d.parent).name); });
+		  
+		gRects.append("text")  
+			.attr("class","nodeText")
+			.attr("x",function(d){ return d.x; })
+			.attr("y",function(d){ return d.y; })
+			.attr("dx", 20 )
+			.attr("dy", 20 )
+			.text(function(d,i) { return d.name; });
+	  
+	});
+			
+</script>	
+		
+</body>  
+</html>  

@@ -1,0 +1,135 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>13.3.1 带箭头的标线</title>  
+  </head> 
+  <style>
+	.province {
+		stroke: white;
+		stroke-width: 1px;
+	}
+  
+	.southsea {
+		stroke: black;
+		stroke-width: 1px;
+		fill: #ccc;
+	}
+
+	.route {
+		stroke: black;
+		stroke-width: 3px;
+		fill: black;
+	}
+  </style>
+<body>
+<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+<script src="../../d3/topojson.js"></script>
+<script>
+
+var width = 700,
+	height = 700;
+	
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+
+var projection = d3.geo.mercator()
+						.center([107, 31])
+						.scale(600)
+    					.translate([width/2, height/2]);
+	
+var path = d3.geo.path()
+				.projection(projection);
+
+var defs = svg.append("defs");
+ 
+var arrowMarker = defs.append("marker")
+						.attr("id","arrow")
+						.attr("markerUnits","strokeWidth")
+					    .attr("markerWidth","12")
+                        .attr("markerHeight","12")
+                        .attr("viewBox","0 0 12 12") 
+                        .attr("refX","6")
+                        .attr("refY","6")
+                        .attr("orient","auto");
+ 
+var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";
+						
+arrowMarker.append("path")
+			.attr("d",arrow_path)
+			.attr("fill","#000");
+
+var startMarker = defs.append("marker")
+						.attr("id","startPoint")
+						.attr("markerUnits","strokeWidth")
+					    .attr("markerWidth","12")
+                        .attr("markerHeight","12")
+                        .attr("viewBox","0 0 12 12") 
+                        .attr("refX","6")
+                        .attr("refY","6")
+                        .attr("orient","auto");
+						
+startMarker.append("circle")
+			.attr("cx",6)
+			.attr("cy",6)
+			.attr("r",2)
+			.attr("fill","#000");
+
+	
+d3.json("china.topojson", function(error, toporoot) {
+	if (error) 
+		return console.error(error);
+	
+	//输出china.topojson的对象
+	console.log(toporoot);
+	
+	//将TopoJSON对象转换成GeoJSON，保存在georoot中
+	var georoot = topojson.feature(toporoot,toporoot.objects.china);
+	
+	//输出GeoJSON对象
+	console.log(georoot);
+
+	//包含中国各省路径的分组元素
+	var china = svg.append("g");
+		
+	//添加中国各种的路径元素
+	var provinces = china.selectAll("path")
+			.data( georoot.features )
+			.enter()
+			.append("path")
+			.attr("class","province")
+			.style("fill", "#ccc")
+			.attr("d", path );
+
+	var peking = projection([116.3, 39.9]);
+	var guilin = projection([110.3, 25.3]);
+
+	svg.append("line")
+		.attr("class","route")
+		.attr("x1",guilin[0])
+		.attr("y1",guilin[1])
+		.attr("x2",peking[0])
+		.attr("y2",peking[1])
+		.attr("marker-end","url(#arrow)")
+		.attr("marker-start","url(#startPoint)");
+});
+	
+	
+d3.xml("southchinasea.svg", function(error, xmlDocument) {
+	svg.html(function(d){
+		return d3.select(this).html() + xmlDocument.getElementsByTagName("g")[0].outerHTML;
+	});
+	
+	var gSouthSea = d3.select("#southsea");
+	
+	gSouthSea.attr("transform","translate(540,410)scale(0.5)")
+		.attr("class","southsea");
+
+});
+
+
+</script>
+		
+    </body>  
+</html>  

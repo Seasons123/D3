@@ -1,0 +1,117 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>10.2 饼状图 P210</title>
+  </head> 
+
+<style>
+
+
+</style>
+    <body>  
+		<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+        <script>
+		
+		var width  = 400;	//SVG绘制区域的宽度
+		var height = 400;	//SVG绘制区域的高度
+			
+		var svg = d3.select("body")			//选择<body>
+					.append("svg")			//在<body>中添加<svg>
+					.attr("width", width)	//设定<svg>的宽度属性
+					.attr("height", height);//设定<svg>的高度属性
+		
+		//1.确定初始数据
+		var dataset = [ ["小米",60.8] , ["三星",58.4] , ["联想",47.3] , ["苹果",46.6] ,
+						["华为",41.3] , ["酷派",40.1] , ["其他",111.5] ];
+		
+		//2.转换数据
+		var pie = d3.layout.pie()  //创建饼形图布局
+						//.startAngle(Math.PI * 0.2)
+						//.endAngle(Math.PI * 1.5)
+						.value(function(d){ return d[1]; });  //值访问器（P208）
+		/*值访问器，就是如何从传入的数组里，提取需要转换数据的方法。因此，要根据所接收的数组的格式，
+		来设置值访问器。设定之后，数组的每一项，都会调用该访问器，并返回一个值，此返回值就是接下来要用于
+		计算的数值。在这里，数组是dataset。每一项都调用值访问器，分别返回：60.8,58.4,47.3 ...   这就是
+		实际使用的数组。*/
+						
+		var piedata = pie(dataset); //转换数据，转换后的每一个对象中都包含有起始角度和终止角度
+
+		console.log(piedata);//输出转换后的数据
+		
+		//3.绘制
+		
+		//外半径和内半径
+		var outerRadius = width / 3;
+		var innerRadius = 0;
+		
+		//创建弧生成器
+		var arc = d3.svg.arc()
+						.innerRadius(innerRadius)
+						.outerRadius(outerRadius);
+		
+		var color = d3.scale.category20();
+		
+		//添加对应数目的弧组，即<g>元素
+		//每一个<g>用于包含一段孤.孤由三部分组成：路径、文字、直线
+		var arcs = svg.selectAll("g")       //<g>的数量与数据piedata的长度一致
+					  .data(piedata)		//绑定转换后的数据piedata
+					  .enter()
+					  .append("g")
+					  .attr("transform","translate("+( width/2 )+","+ ( height/2 ) +")");
+				
+		//添加弧的路径元素 （添加路径元素之后，饼状图的主体部分就有了）
+		arcs.append("path")
+			.attr("fill",function(d,i){
+				return color(i);	//设定弧的颜色
+			})
+			.attr("d",function(d){  //属性d是路径值
+				return arc(d);	//使用弧生成器获取路径，前面定义的孤生成器就是为了在这里生产路径值用的
+					            //函数体中的变量d，就是被绑定的数组的各项元素，每一项都是对象
+			});
+		
+		
+		//添加弧内的文字元素
+		/*arc.centroid(),此方法能计算孤的中心坐标。
+		arc.centroid(d)返回一个数组[x,y]，分别表示x和y方向的坐标。
+		但是，孤的中心是相对于圆心来说的。例如：如某段孤的中心坐标为(50,50),不是说孤的中心在SVG画板的(50,50)处，而是在以圆心为坐标原点的(5,50)处
+		使用 "arc.centroid(d)乘以一个系数的方法" 可以获取圆心和孤中心所在直线上的任意点*/
+		arcs.append("text")
+			.attr("transform",function(d){
+				var x = arc.centroid(d)[0] * 1.4;		//文字的x坐标
+				var y = arc.centroid(d)[1] * 1.4;		//文字的y坐标
+				return "translate(" + x + "," + y + ")";
+			})
+			.attr("text-anchor","middle")
+			.text(function(d){
+				//计算市场份额的百分比
+				var percent = Number(d.value)/d3.sum(dataset,function(d){ return d[1]; }) * 100;
+				
+				//保留1位小数点，末尾加一个百分号返回
+				return percent.toFixed(1) + "%";
+			});
+			
+		
+		//添加连接弧外文字的直线元素
+		arcs.append("line")
+			.attr("stroke","black")
+			.attr("x1",function(d){ return arc.centroid(d)[0] * 2; })
+			.attr("y1",function(d){ return arc.centroid(d)[1] * 2; })
+			.attr("x2",function(d){ return arc.centroid(d)[0] * 2.2; })
+			.attr("y2",function(d){ return arc.centroid(d)[1] * 2.2; });
+			
+		//添加弧外的文字元素
+		arcs.append("text")
+			.attr("transform",function(d){
+				var x = arc.centroid(d)[0] * 2.5;
+				var y = arc.centroid(d)[1] * 2.5;
+				return "translate(" + x + "," + y + ")";
+			})
+			.attr("text-anchor","middle")
+			.text(function(d){
+				return d.data[0];
+			});
+		  
+        </script>  
+		
+    </body>  
+</html>  

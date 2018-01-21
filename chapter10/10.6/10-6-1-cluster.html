@@ -1,0 +1,86 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>10.6.1 集群图</title>  
+  <style>
+
+	.node circle {
+	  fill: #fff;
+	  stroke: steelblue;
+	  stroke-width: 1.5px;
+	}
+
+	.node {
+	  font: 12px sans-serif;
+	}
+
+	.link {
+	  fill: none;
+	  stroke: #ccc;
+	  stroke-width: 1.5px;
+	}
+  
+  </style>
+		
+  </head> 
+
+    <body>  
+		<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+        <script>
+		
+		var width  = 500;	//SVG绘制区域的宽度
+		var height = 500;	//SVG绘制区域的高度
+			
+		var svg = d3.select("body")			//选择<body>
+					.append("svg")			//在<body>中添加<svg>
+					.attr("width", width)	//设定<svg>的宽度属性
+					.attr("height", height);//设定<svg>的高度属性
+					
+		var gCluster = svg.append("g")
+						.attr("transform","translate(40,0)");
+		
+		var cluster = d3.layout.cluster()
+			.size([width, height-200])
+			.separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) ; });
+
+		var diagonal = d3.svg.diagonal()
+			.projection(function(d) { return [d.y, d.x]; });
+		
+		d3.json("city.json", function(error, root) {
+
+			var nodes = cluster.nodes(root);
+			var links = cluster.links(nodes);
+			
+			console.log(nodes);
+			console.log(links);
+			
+			var link = gCluster.selectAll(".link")
+			  .data(links)
+			  .enter()
+			  .append("path")
+			  .attr("class", "link")
+			  .attr("d", diagonal);	//使用对角线生成器
+			
+			var node = gCluster.selectAll(".node")
+						  .data(nodes)
+						  .enter()
+						  .append("g")
+						  .attr("class", "node")
+						  .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+			
+			node.append("circle")
+				.attr("r", 4.5);
+			
+			node.append("text")
+				  .attr("dx", function(d) { return d.children ? -8 : 8; })
+				  .attr("dy", 3)
+				  .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+				  .text(function(d) { return d.name; });
+				  
+				  
+		});
+		
+        </script>  
+		
+    </body>  
+</html>  

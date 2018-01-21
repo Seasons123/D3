@@ -1,0 +1,122 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>13.5.1 沃罗诺伊图</title>  
+  <style>
+
+	.node {
+		fill: black;
+	}
+
+	.link {
+		stroke: #888;
+		stroke-width: 1;
+	}
+
+  </style>
+  </head> 
+
+<body>
+<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+<script>
+
+
+	var width  = 500;
+	var height = 500;
+	
+	var svg = d3.select("body")
+				.append("svg")
+			    .attr("width", width)
+			    .attr("height", height);
+	
+	//添加节点
+	var nodes = [];
+
+	for (var i = 0; i < 100; i++) {
+		nodes.push({
+			x: Math.random() * width,
+			y: Math.random() * height
+		});
+	};
+
+	//创建voronoi图的运算器
+	var voronoi = d3.geom.voronoi()
+					.x(function(d){
+						return d.x;
+					})
+					.y(function(d){
+						return d.y;
+					});
+
+	//计算多边形
+	var polygons = voronoi(nodes);
+
+	console.log(polygons);
+
+	//根据多边形数组获取多边形的边
+	var edges = [];
+
+	polygons.forEach(function(d,i){
+		for(var i=0; i<d.length; i++){
+			if( i !== d.length - 1 )
+				edges.push( edge( d[i] , d[i+1] ) );
+			else
+				edges.push( edge( d[i] , d[0] ) );
+		}
+	});
+
+	console.log(nodes);
+	console.log(edges);
+
+
+	//绘制边
+	var lines = svg.selectAll(".link")
+					.data(edges)
+					.enter()
+					.append("line")
+					.attr("class","link")
+					.attr("x1",function(d){ return d.source[0]; })
+					.attr("y1",function(d){ return d.source[1]; })
+					.attr("x2",function(d){ return d.target[0]; })
+					.attr("y2",function(d){ return d.target[1]; });
+
+	//绘制节点
+	var circles = svg.selectAll(".node")
+					.data(nodes)
+					.enter()
+					.append("circle")
+					.attr("class","node")
+					.attr("cx",function(d){ return d.x; })
+					.attr("cy",function(d){ return d.y; })
+					.attr("r",5);
+
+	svg.append("rect")
+		.attr("x",0)
+		.attr("y",0)
+		.attr("width",width)
+		.attr("height",height)
+		.style("stroke","black")
+		.style("fill","none")
+		.style("stroke-width","1px")
+		.style("pointer-events","all")
+		.on("click",function(){
+			if( lines.style("opacity") < 1e-6 ){
+				lines.style("opacity",1.0);
+			}else{
+				lines.style("opacity",0.0);
+			}
+		});
+
+
+	function edge(a, b) {
+		return {
+			source: a,
+			target: b
+		};
+	}
+
+
+</script>
+	
+</body>  
+</html>  

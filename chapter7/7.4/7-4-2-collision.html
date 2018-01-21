@@ -1,0 +1,102 @@
+﻿<html>
+<head>
+	<title>7.4.2 小球碰撞 课本P 172 </title>
+</head>
+
+<style>
+.border{
+	fill: none;
+	stroke: black;
+	stroke-width: 1px;
+}
+
+
+.ball{
+	fill: blue;
+	stroke: black;
+	stroke-width: 2px;
+}
+
+</style>
+
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script>
+<script>
+
+var width = 400;
+var height = 400;
+
+var svg = d3.select("body").append("svg")
+			.attr("width",width)
+			.attr("height",height);
+
+var padding = {left:20,right:20,top:20,bottom:20};
+
+
+svg.append("rect")
+	.attr("class","border")
+	.attr("x",padding.left)
+	.attr("y",padding.top)
+	.attr("width",width - padding.left - padding.right)
+	.attr("height",height - padding.top - padding.bottom);
+
+
+var ballobj = { x: 200, y: 200, vx: 40.0 , vy: 0.0 , r: 20};
+var gravity = 9.8;
+
+
+var ball = svg.append("circle")
+				.datum(ballobj)
+				.attr("class","ball")
+				.attr("cx",function(d){ return d.x; })
+				.attr("cy",function(d){ return d.y; })
+				.attr("r",function(d){ return d.r; });
+
+d3.timer(updateBall);
+
+var t0 = Date.now();	//前一时刻
+var t1 = Date.now();	//当前时刻
+var dt = 0;	//时间间隔
+
+
+var xmax = width - padding.right;
+var xmin = padding.left;
+var ymax = height - padding.bottom;
+var ymin = padding.top;
+
+function updateBall(){
+
+	//计算当前时刻
+	t1 = Date.now();
+
+	//计算当前时刻与前一时刻的间隔（乘以0.001变单位为秒）
+	dt = (t1 - t0)*0.001;
+
+	//计算下一时刻小球的坐标
+	
+	ballobj.vy += gravity * dt;
+
+	ballobj.x += ballobj.vx * dt;
+	ballobj.y += ballobj.vy * dt;
+
+	if(  ballobj.x + ballobj.r  > xmax || ballobj.x - ballobj.r  < xmin  )
+		ballobj.vx *= -1;
+
+	if(  ballobj.y + ballobj.r  > ymax || ballobj.y - ballobj.r  < ymin  )
+		ballobj.vy *= -1;
+
+	//更新图形
+	ball.attr("cx",function(d){ return d.x; })
+		.attr("cy",function(d){ return d.y; });
+
+
+	//记录当前时刻到t0，为下一次计算使用
+	t0 = t1;
+
+}
+
+
+</script>
+</body>
+</html>

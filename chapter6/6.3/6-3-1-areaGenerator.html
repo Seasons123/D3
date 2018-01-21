@@ -1,0 +1,45 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>6.3.1 区域生成器</title>  
+  </head> 
+  <style>
+
+  </style>
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+var width  = 500;	//SVG绘制区域的宽度
+var height = 500;	//SVG绘制区域的高度
+	
+var svg = d3.select("body")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+
+
+var dataset = [80,120,130,70,60,90];
+
+//创建一个区域生成器
+var areaPath = d3.svg.area()
+					.x(function(d,i){ return 50 + i * 80; })
+					.y0(function(d,i){ return height/2; })
+					.y1(function(d,i){ return height/2 - d; })
+					.interpolate("step");
+
+//添加路径
+svg.append("path")
+	.attr("d",areaPath(dataset))	
+	.attr("stroke","black")
+	.attr("stroke-width","3px")
+	.attr("fill","yellow");
+	
+	
+
+
+</script> 
+
+</body>
+</html>

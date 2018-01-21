@@ -1,0 +1,144 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>13.3.2 球体的标线</title>  
+  </head> 
+  <style>
+	.country {
+		stroke: white;
+		stroke-width: 1px;
+	}
+	
+	.graticule{
+		fill: none;
+		stroke: #ccc;
+		stroke-width: 1px;
+	}
+
+	.route {
+		stroke: black;
+		stroke-width: 3px;
+		fill: none;
+	}
+  </style>
+<body>
+<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+<script>
+
+var width = 800,
+	height = 400;
+	
+var svg = d3.select("body").append("svg")
+			.attr("width", width)
+			.attr("height", height);
+
+
+var ortho = d3.geo.orthographic()
+					.scale(200)
+					.translate([width/2, height/2])
+					.rotate([-160,-40,0])
+					.clipAngle(90);
+					
+	
+var path = d3.geo.path()
+				.projection(ortho);
+	
+var graticule = d3.geo.graticule()
+					.extent([[-180,-90],[180,90]])
+					.step([10,10]);
+					
+svg.append("path")
+	.attr("class","graticule")
+	.attr("d",path(graticule()));
+	
+var color = d3.scale.category20();
+
+
+var defs = svg.append("defs");
+ 
+var arrowMarker = defs.append("marker")
+						.attr("id","arrow")
+						.attr("markerUnits","strokeWidth")
+					    .attr("markerWidth","12")
+                        .attr("markerHeight","12")
+                        .attr("viewBox","0 0 12 12") 
+                        .attr("refX","6")
+                        .attr("refY","6")
+                        .attr("orient","auto");
+ 
+var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";
+						
+arrowMarker.append("path")
+			.attr("d",arrow_path)
+			.attr("fill","#000");
+
+var startMarker = defs.append("marker")
+						.attr("id","startPoint")
+						.attr("markerUnits","strokeWidth")
+					    .attr("markerWidth","12")
+                        .attr("markerHeight","12")
+                        .attr("viewBox","0 0 12 12") 
+                        .attr("refX","6")
+                        .attr("refY","6")
+                        .attr("orient","auto");
+						
+startMarker.append("circle")
+			.attr("cx",6)
+			.attr("cy",6)
+			.attr("r",2)
+			.attr("fill","#000");
+
+
+
+d3.json("world_605kb.json", function(error, root) {
+	if (error) 
+		return console.error(error);
+
+	var groups = svg.append("g");
+		
+	groups.selectAll("path")
+			.data( root.features )
+			.enter()
+			.append("path")
+			.attr("class","country")
+			.attr("d",path)
+			.style("fill",function(d,i){
+				return "#999";
+			});
+
+	/*var pekingToWashington = {
+		type: "LineString", 
+		coordinates: [[116.4, 39.9], [-77.0, 38.9]]
+	};*/
+
+	var pekingToWashington = {
+		type: "LineString", 
+		coordinates: [[116.4, 39.9], [146.4, 39.7], [176.4, 39.5],
+					 [-150.4, 39.3],[-110.4, 39.1],[-77.0, 38.9]]
+	};
+
+	svg.append("path")
+		.attr("class","route")
+		.attr("d",path(pekingToWashington))
+		.attr("marker-end","url(#arrow)")
+		.attr("marker-start","url(#startPoint)");
+
+	
+	/*var peking = ortho([116.4, 39.9]);
+	var washington = ortho([-77.0, 38.9]);
+
+	svg.append("line")
+		.attr("class","route")
+		.attr("x1",peking[0])
+		.attr("y1",peking[1])
+		.attr("x2",guilin[0])
+		.attr("y2",guilin[1])
+		.attr("marker-end","url(#arrow)")
+		.attr("marker-start","url(#startPoint)");*/
+			
+});
+
+</script>
+		
+    </body>  
+</html>  

@@ -1,0 +1,138 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>10.7.1 捆图</title>  
+  <style>
+
+	.node circle {
+	  stroke: black;
+	  stroke-width: 2px;
+	}
+
+	.node text{
+	  font-size: 12px;
+	  font-family: simsun;
+	}
+
+	.link {
+	  fill: none;
+	  stroke: black;
+	  stroke-opacity: .5;
+	  stroke-width: 8px;
+	}
+  
+  </style>
+		
+  </head> 
+
+    <body>  
+		<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+        <script>
+		
+		var width  = 500;	//SVG绘制区域的宽度
+		var height = 500;	//SVG绘制区域的高度
+			
+		var svg = d3.select("body")			//选择<body>
+					.append("svg")			//在<body>中添加<svg>
+					.attr("width", width)	//设定<svg>的宽度属性
+					.attr("height", height);//设定<svg>的高度属性
+	
+		
+		//1. 确定初始数据
+		var cities = {
+			name: "",
+            children:[
+                {name: "北京"},{name: "上海"},{name: "杭州"},
+                {name: "广州"},{name: "桂林"},{name: "昆明"},
+                {name: "成都"},{name: "西安"},{name: "太原"}
+            ]
+        };
+		
+		var railway = [
+			{source: "北京", target: "上海"},
+			{source: "北京", target: "广州"},
+			{source: "北京", target: "杭州"},
+			{source: "北京", target: "西安"},
+			{source: "北京", target: "成都"},
+			{source: "北京", target: "太原"},
+			{source: "北京", target: "桂林"},
+			{source: "北京", target: "昆明"},
+			{source: "北京", target: "成都"},
+			{source: "上海", target: "杭州"},
+			{source: "昆明", target: "成都"},
+			{source: "西安", target: "太原"}
+		];
+		
+		//2. 转换数据
+		var cluster = d3.layout.cluster()
+						.size([360, width/2 - 50])
+						.separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
+
+		var bundle = d3.layout.bundle();				
+
+		var nodes = cluster.nodes(cities);
+		console.log(nodes);
+		
+		var oLinks = map(nodes, railway);
+		console.log(oLinks);
+		
+		var links = bundle(oLinks);
+		console.log(links);
+		
+		//将links中的source和target由名称替换成节点
+		function map( nodes, links ){
+			var hash = [];
+			for(var i = 0; i < nodes.length; i++){
+				hash[nodes[i].name] = nodes[i];
+			}
+			var resultLinks = [];
+			for(var i = 0; i < links.length; i++){
+				resultLinks.push({  source: hash[ links[i].source ], 
+									target: hash[ links[i].target ]
+								});
+			}
+			return resultLinks;
+		}
+		
+		//3. 绘图
+		var line = d3.svg.line.radial()
+					.interpolate("bundle")
+					.tension(.85)
+					.radius(function(d) { return d.y; })
+					.angle(function(d) { return d.x / 180 * Math.PI; });
+					
+		gBundle = svg.append("g")
+					.attr("transform", "translate(" + (width/2) + "," + (height/2) + ")");
+		
+		var color = d3.scale.category20c();
+			
+		var link = gBundle.selectAll(".link")
+			  .data(links)
+			  .enter()
+			  .append("path")
+			  .attr("class", "link")
+			  .attr("d", line);	//使用线段生成器
+			
+		
+		var node = gBundle.selectAll(".node")
+			  .data( nodes.filter(function(d) { return !d.children; }) )
+			  .enter()
+			  .append("g")
+			  .attr("class", "node")
+			  .attr("transform", function(d) {
+					return "rotate(" + (d.x- 90) + ")translate(" + d.y + ")" + "rotate("+ (90 - d.x) +")"; 
+			  });
+			
+		node.append("circle")
+			  .attr("r", 20)
+			  .style("fill",function(d,i){ return color(i); });
+			
+		node.append("text")
+			.attr("dy",".2em")
+			.style("text-anchor", "middle")
+			.text(function(d) { return d.name; });
+		
+        </script>  
+		
+    </body>  
+</html>  

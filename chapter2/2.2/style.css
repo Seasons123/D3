@@ -1,0 +1,64 @@
+#container{
+	margin: 10px auto;
+	width: 700px;
+	font-family: Kaiti;
+}
+
+#header{
+	
+}
+
+#mainbody{
+	margin: 0px 0px 0px 0px;
+	height: 200px;
+}
+
+#siderbar{
+	width: 25%;
+	height: 100%;
+	float: left;
+	clear: left;
+	border: 1px solid gray;
+	border-radius: 5px;
+}
+
+#maincontent{
+	width: 73%;
+	height: 100%;
+	float: right;
+	clear: right;
+	text-align: center;
+	border: 1px solid gray;
+	border-radius: 5px;
+	font-size: 20px;
+}
+
+#footer{
+	border-top:thin solid gray;
+	background-color: ;
+	clear: both;
+	margin: 30px auto;
+	text-align: center;
+	font-size: 12px;
+	font-family: simsun;
+}
+
+h1{
+	text-align: center;
+}
+
+.category{
+	margin: 10px auto;
+	width: 90%;
+	height: 30px;
+	background-color: gray;
+	border-radius: 10px;
+	color: white;
+	font-size: 20px;
+	text-align: center;
+	line-height: 30px;
+}
+
+.important{
+	color: red;
+}

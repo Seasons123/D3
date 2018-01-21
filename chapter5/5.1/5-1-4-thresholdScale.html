@@ -1,0 +1,30 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>5.1.4 阈值比例尺</title>  
+  </head> 
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+
+var threshold = d3.scale.threshold()
+				.domain([10,20,30])
+				.range(["red","green","blue","black"]);
+				
+console.log( threshold(5) );
+console.log( threshold(15) );
+console.log( threshold(25) );
+console.log( threshold(35) );
+
+console.log( threshold.invertExtent("red") );
+console.log( threshold.invertExtent("green") );
+console.log( threshold.invertExtent("blue") );
+console.log( threshold.invertExtent("black") );
+
+</script> 
+
+</body>
+
+</html>

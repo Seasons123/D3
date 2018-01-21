@@ -1,0 +1,327 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>12.3.2 合并和拆分</title>  
+  <style>
+
+
+  </style>
+  </head> 
+  <body>  
+		<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+        <script>
+		
+		var width  = 600;	//SVG绘制区域的宽度
+		var height = 600;	//SVG绘制区域的高度
+			
+		var svg = d3.select("body")			//选择<body>
+					.append("svg")			//在<body>中添加<svg>
+					.attr("width", width)	//设定<svg>的宽度属性
+					.attr("height", height);//设定<svg>的高度属性
+		
+		//1.确定初始数据
+		var dataset = [ ["小米",60.8] , ["三星",58.4] , ["联想",47.3] , ["苹果",46.6] ,
+						["华为",41.3] , ["酷派",40.1] , ["其他",111.5] ];
+		
+		//2.转换数据
+		var pie = d3.layout.pie()
+					.value(function(d){ return d[1]; });
+					
+		var piedata = pie(dataset);
+		
+		console.log(piedata);;	
+		
+		//3.绘制
+		
+		//字体大小
+		var fontsize = 14;
+		
+		//外半径和内半径
+		var outerRadius = 400 / 3;
+		var innerRadius = 0;
+
+		//饼状图的圆的圆心和半径
+		var piecircle = { 
+			cx: width/2, 
+			cy: height/2, 
+			r: outerRadius
+		};
+		
+		//创建弧生成器
+		var arc = d3.svg.arc()
+						.innerRadius(innerRadius)
+						.outerRadius(outerRadius);
+		
+		var color = d3.scale.category20();
+
+		redraw();
+		
+		function redraw(){	//重绘函数
+
+			//获取update部分
+			var arcsUpdate = svg.selectAll(".arcGroup")
+					  .data(piedata,function(d){  return d.data[0]; });
+
+			//获取enter部分
+			var arcsEnter = arcsUpdate.enter();
+
+			//获取exit部分
+			var arcsExit = arcsUpdate.exit();
+
+			//1. update部分的处理办法，设定新的属性
+			arcsUpdate.call(setAttributes);
+
+			//2. enter部分的处理办法
+			var newArcs = arcsEnter.append("g")
+							.attr("class","arcGroup");
+
+			//添加弧
+			newArcs.append("path")
+					.attr("class","arcPath");
+
+			//添加弧内文字
+			newArcs.append("text")
+					.attr("class","percent");
+
+			//添加弧外文字
+			newArcs.append("text")
+					.attr("class","company");
+
+			//添加连接文字的直线1
+			newArcs.append("line")
+					.attr("class","conLine1");
+
+			//添加连接文字的直线2
+			newArcs.append("line")
+					.attr("class","conLine2");
+
+			//设定属性
+			newArcs.call(setAttributes);
+
+			//3. exit部分的处理办法，删除元素
+			arcsExit.remove();
+		}
+
+
+		function setAttributes(arcs){	//设置弧的属性
+
+			/*
+				为每一段弧添加三个数据：
+				circle - 饼状图所在的圆，其中包含cx、cy、r三个属性
+				dx - x方向的相对偏移量，拖拽事件触发时使用
+				dy - y方向的相对偏移量，拖拽事件触发时使用
+			*/
+			arcs.each(function(d){
+				d.circle = piecircle;
+				d.dx = 0;
+				d.dy = 0;
+			});
+			
+			arcs.attr("transform",function(d){
+				return "translate("+ d.circle.cx +","+ d.circle.cy +")";
+			});
+			
+			//绘制弧
+			arcs.select(".arcPath")
+				.attr("fill",function(d,i){
+					return color(d.data[0]);	//设定弧的颜色
+				})
+				.attr("d",function(d){
+					return arc(d);	//使用弧生成器
+				});
+			
+			
+			//绘制弧内的文字
+			arcs.select(".percent")
+				.attr("transform",function(d){
+					var x = arc.centroid(d)[0] * 1.4;		//文字的x坐标
+					var y = arc.centroid(d)[1] * 1.4;		//文字的y坐标
+					return "translate(" + x + "," + y + ")";
+				})
+				.attr("text-anchor","middle")
+				.style("font-size",fontsize)
+				.text(function(d){
+					//计算市场份额的百分比
+					var percent = Number(d.value)/d3.sum(dataset,function(d){ return d[1]; }) * 100;
+					
+					//保留1位小数点，末尾加一个百分号返回
+					return percent.toFixed(1) + "%";
+				});
+
+			
+			//绘制连接弧外文字的直线
+			arcs.select(".conLine1")
+				.style("stroke","black")
+				.attr("x1",function(d){ return arc.centroid(d)[0] * 2; })
+				.attr("y1",function(d){ return arc.centroid(d)[1] * 2; })
+				.attr("x2",function(d){ return arc.centroid(d)[0] * 2.2; })
+				.attr("y2",function(d){ return arc.centroid(d)[1] * 2.2; });
+				
+			//绘制连接弧外文字的直线
+			arcs.select(".conLine2")
+				.style("stroke","black")
+				.each(function(d){
+					d.textLine = {x1:0, y1:0, x2:0, y2:0};
+				})
+				.attr("x1",function(d){ 
+					d.textLine.x1 = arc.centroid(d)[0] * 2.2;
+					return d.textLine.x1; 
+				})
+				.attr("y1",function(d){ 
+					d.textLine.y1 = arc.centroid(d)[1] * 2.2;
+					return d.textLine.y1; 
+				})
+				.attr("x2",function(d){ 
+					var strLen = getPixelLength(d.data[0],fontsize) * 1.5;
+					var bx = arc.centroid(d)[0] * 2.2;
+					d.textLine.x2 =	bx >= 0 ? bx + strLen : bx - strLen;
+					return d.textLine.x2;
+				})
+				.attr("y2",function(d){
+					d.textLine.y2 =	arc.centroid(d)[1] * 2.2;
+					return d.textLine.y2; 
+				});
+				
+			//绘制弧外文字
+			arcs.select(".company")
+				.attr("transform",function(d){
+					var x = 0;
+					var y = 0;
+					x = ( d.textLine.x1 + d.textLine.x2 ) / 2;
+					y = d.textLine.y1;
+					y = y > 0 ? y + fontsize * 1.1 : y - fontsize * 0.4;
+					return "translate(" + x + "," + y + ")";
+				})
+				.style("text-anchor","middle")
+				.style("font-size",fontsize)
+				.text(function(d){
+					return d.data[0];
+				});
+
+			//弧的拖拽行为
+			var drag = d3.behavior.drag()
+				    	.origin(null)
+						.on("drag", dragmove)
+						.on("dragend",dragend);
+
+			//正在拖拽事件（drag）被触发时的监听器
+			function dragmove(d) {
+				d.dx += d3.event.dx;	//加鼠标x方向的偏移量
+				d.dy += d3.event.dy;	//加鼠标y方向的偏移量
+
+				//为被拖拽的弧的平移属性设定新的值
+				d3.select(this)
+					.attr("transform","translate("+ ( d.dx + d.circle.cx ) + "," + 
+													( d.dy + d.circle.cy ) +")");
+			}
+
+			//拖拽结束事件（dragend）被触发时的监听器
+			function dragend(d,i) {
+
+				//计算被拖拽的元素到饼状图圆心距离的平方
+				var dis2 = d.dx * d.dx + d.dy * d.dy;
+				if( dis2 > d.circle.r * d.circle.r ){
+					//如果被拖到了饼状图之外
+
+					 /*
+					   删除原数组dataset中的第i个元素（即被拖拽元素）
+					   被删除的元素保存在movedData中
+					 */
+					var movedData = dataset.splice(i,1);
+
+					//重新调用布局计算dataset数组，结果保存在piedata中
+					piedata = pie(dataset);
+
+					 //添加一个圆，用于表示被移出的弧
+					appendCircle(movedData[0]);
+
+					//重绘
+					redraw();
+				}
+			}
+
+			//所有弧调用上面定义的拖拽行为
+			arcs.call(drag);
+
+		}
+
+
+			var circleGroups = svg.append("g");
+
+			//已经被移出去的元素的拖拽行为
+			var dragCircle = d3.behavior.drag()
+				    			.origin(null)
+								.on("drag", dragCircleMove)
+								.on("dragend",dragCricleEnd);
+
+
+			function dragCircleMove(d) {
+				d.x = d3.event.sourceEvent.offsetX;
+				d.y = d3.event.sourceEvent.offsetY;
+
+				d3.select(this)
+					.attr("transform","translate("+ d.x + "," + d.y +")");
+			}
+
+
+			function dragCricleEnd(d,i) {
+				//到圆心距离的平方
+				var dis2 = ( d.x - piecircle.cx ) * ( d.x - piecircle.cx ) + 
+						   ( d.y - piecircle.cy ) * ( d.y - piecircle.cy );
+
+				if( dis2 < piecircle.r * piecircle.r  ){
+
+					dataset.push([d[0],d[1]]);
+
+					piedata = pie(dataset);
+
+					d3.select(this).remove();
+
+					redraw();
+				}
+			}
+
+
+			function appendCircle(data){
+
+					//为拖拽出来的图形增加新元素
+					gCircle = circleGroups.append("g")
+							.datum(data)
+							.attr("class","movedArc")
+							.attr("transform","translate("+ d3.event.sourceEvent.offsetX + "," + d3.event.sourceEvent.offsetY +")")
+							.call(dragCircle);
+
+					gCircle.append("circle")
+							.attr("cx", 0)
+							.attr("cy", 0)
+							.attr("r", 20)
+							.style("fill",function(d){
+								return color(d[0]);
+							});
+
+					gCircle.append("text")
+							.attr("dx", "22px")
+							.attr("dy", ".4em")
+							.text(function(d){
+								return d[0];
+							});
+			}
+
+			
+
+		
+		function getPixelLength(str,fontsize){
+			var curLen = 0;
+			for(var i=0;i<str.length;i++){
+				var code = str.charCodeAt(i);
+				var pixelLen = code > 255 ? fontsize : fontsize/2;
+				curLen += pixelLen;
+			}
+			return curLen;
+		}
+
+		  
+        </script>  
+		
+    </body>  
+</html>  

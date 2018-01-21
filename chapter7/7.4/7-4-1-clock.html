@@ -1,0 +1,56 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>7.4.1 时钟 课本P171</title>
+  </head> 
+  <style>
+  
+.time {
+	font-family: Cursive;
+	font-size: 40px;
+	stroke: black;
+	stroke-width: 2;
+}
+
+  </style>
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  	   
+
+var width  = 500;	//SVG绘制区域的宽度
+var height = 500;	//SVG绘制区域的高度
+	
+var svg = d3.select("body")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+	
+var timeText = svg.append("text")
+					.attr("x",100)
+					.attr("y",100)
+					.attr("class","time")
+					.text(getTimeString());
+
+setInterval(updateTime,1000);
+
+function updateTime(){
+	timeText.text(getTimeString());
+}
+			
+function getTimeString(){
+	var time = new Date();
+	var hours = time.getHours();
+	var minutes = time.getMinutes();
+	var seconds = time.getSeconds();
+	hours = hours < 10 ? "0" + hours : hours;
+	minutes = minutes < 10 ? "0" + minutes : minutes;
+	seconds = seconds < 10 ? "0" + seconds : seconds;
+	return hours + ":" + minutes + ":" + seconds;
+}
+			
+</script> 
+
+</body>
+
+</html>

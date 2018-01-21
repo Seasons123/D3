@@ -1,0 +1,18 @@
+<svg width="600" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M30,100 Q190,20 270,100
+		 T450,100"
+	style="fill:white; stroke:black; stroke-width:3 "/>
+	
+<path d="M30,100 L190,20 L270,100 "
+	style="fill:none; stroke:black; stroke-width:1; stroke-dasharray:5,5 "/>
+<circle cx="30" cy="100" r="5" fill="green"/>
+<circle cx="190" cy="20" r="5" fill="green"/>
+<circle cx="270" cy="100" r="5" fill="green" />	
+
+<path d="M270,100 L350,180 L450,100 "
+	style="fill:none; stroke:black; stroke-width:1; stroke-dasharray:5,5 "/>
+<circle cx="350" cy="180" r="5" style="fill:white; stroke:green; stroke-width:3; stroke-dasharray:2,2 "/>
+<circle cx="450" cy="100" r="5" fill="green" />
+
+</svg>

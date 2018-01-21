@@ -1,0 +1,42 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>8.2.1 d3.event</title>  
+  </head> 
+  <style>
+  
+  </style>
+<body>
+
+<div style="padding:50 ; background-color: gray"></div>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+var dataset = [50, 43, 120, 87, 99, 167, 142];
+的
+var width  = 400;	//SVG绘制区域宽度
+var height = 400;	//SVG绘制区域的高度
+	
+var svg = d3.select("div")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.style("background-color","yellow")  //设定背景颜色为黄色
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+			
+svg.append("rect")
+	.attr("x",200)
+	.attr("y",100)
+	.attr("width",100)
+	.attr("height",100)
+	.on("click",function(){
+		console.log(d3.mouse(this));
+	});
+
+
+	
+</script> 
+
+</body>
+
+</html>

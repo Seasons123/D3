@@ -1,0 +1,41 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>5.1.2 指数比例尺</title>  
+  </head> 
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+/*
+var pow = d3.scale.pow().exponent(3);
+console.log( pow(2) );
+console.log( pow(3) );
+
+pow.exponent(0.5);
+console.log( pow(2) );
+console.log( pow(3) );*/
+
+
+var pow = d3.scale.pow()
+				.exponent(3)
+				.domain([0,3])
+				.range([0,90]);
+				
+var linear = d3.scale.linear()
+				.domain([0,Math.pow(3,3)])
+				.range([0,90]);
+				
+console.log( pow(1.5) );
+
+console.log( linear(Math.pow(1.5,3)) );
+
+
+
+	
+</script> 
+
+</body>
+
+</html>

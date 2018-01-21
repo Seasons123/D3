@@ -1,0 +1,91 @@
+﻿<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>10.6.2 圆状集群图</title>  
+  <style>
+
+	.node circle {
+	  fill: #fff;
+	  stroke: steelblue;
+	  stroke-width: 1.5px;
+	}
+
+	.node text{
+	  font-size: 12px;
+	  font-family: simsun;
+	  font-weight: bold;
+	}
+
+	.link {
+	  fill: none;
+	  stroke: #ccc;
+	  stroke-width: 1.5px;
+	}
+  
+  </style>
+		
+  </head> 
+
+    <body>  
+		<script src="../../d3/d3.min.js" charset="utf-8"></script>  
+        <script>
+		
+		var width  = 800;	//SVG绘制区域的宽度
+		var height = 800;	//SVG绘制区域的高度
+			
+		var svg = d3.select("body")			//选择<body>
+					.append("svg")			//在<body>中添加<svg>
+					.attr("width", width)	//设定<svg>的宽度属性
+					.attr("height", height);
+					
+		gCluster = svg.append("g")
+					.attr("transform", "translate(" + (width/2) + "," + (height/2) + ")");
+		
+		var cluster = d3.layout.cluster()
+						.size([360, width/2 - 100])
+						.separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
+
+		var diagonal = d3.svg.diagonal.radial()
+			.projection(function(d) {
+				var radius = d.y,
+					angle  = d.x / 180 * Math.PI;
+				return [ radius , angle ];
+			});
+		
+		
+		d3.json("city2.json", function(error, root) {
+
+			var nodes = cluster.nodes(root);
+			var links = cluster.links(nodes);
+			
+			console.log(nodes);
+			console.log(links);
+			
+			var link = gCluster.selectAll(".link")
+			  .data(links)
+			  .enter()
+			  .append("path")
+			  .attr("class", "link")
+			  .attr("d", diagonal);
+			
+			var node = gCluster.selectAll(".node")
+			  .data(nodes)
+			  .enter()
+			  .append("g")
+			  .attr("class", "node")
+			  .attr("transform", function(d) { return "rotate(" + (d.x- 90) + ")translate(" + d.y + ")"; });
+			
+			node.append("circle")
+			  .attr("r", 4.5);
+			
+			node.append("text")
+			  .attr("transform",function(d){ return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)";  })
+			  .attr("dy", ".3em")
+			  .style("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+			  .text(function(d) { return d.name; });
+		});
+		
+        </script>  
+		
+    </body>  
+</html>  

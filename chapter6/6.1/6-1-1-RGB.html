@@ -1,0 +1,39 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>6.1.1 RGB颜色</title>  
+  </head> 
+  <style>
+
+  </style>
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+
+var color1 = d3.rgb(40,80,0);
+var color2 = d3.rgb("red");
+var color3 = d3.rgb("rgb(0,255,255)");
+
+//将color1的颜色变亮，返回值的颜色为 r: 81, g: 163, b:0
+console.log( color1.brighter(2) );
+//原颜色值不变，依然是 r: 40, g: 80, b:0
+console.log( color1 );
+
+//将color2的颜色变亮，返回值的颜色为 r: 124, g: 0, b:0
+console.log( color2.darker(2) );
+//原颜色值不变，依然是 r: 255, g: 0, b:0
+console.log( color2 );
+
+//输出color3颜色的HSL值，h: 180, s: 1, l: 0.5
+console.log( color3.hsl() );
+
+//输出#00ffff
+console.log( color3.toString() );
+
+
+</script> 
+
+</body>
+</html>

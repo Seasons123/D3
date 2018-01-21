@@ -1,0 +1,58 @@
+<html>  
+  <head>  
+        <meta charset="utf-8">  
+        <title>8.3.2 drag.origin的应用</title>  
+  </head> 
+  <style>
+  
+  </style>
+<body>
+
+<script src="../../d3/d3.min.js" charset="utf-8"></script> 
+<script>  
+
+var width  = 400;	//SVG绘制区域的宽度
+var height = 400;	//SVG绘制区域的高度
+	
+var svg = d3.select("body")			//选择<body>
+			.append("svg")			//在<body>中添加<svg>
+			.attr("width", width)	//设定<svg>的宽度属性
+			.attr("height", height);//设定<svg>的高度属性
+			
+var circles = [ { cx: 150, cy:200, r:30 },
+				{ cx: 250, cy:200, r:30 }];
+			
+var drag = d3.behavior.drag()		//创建一个拖拽行为
+				.origin(function(d,i){
+					return {x: 300 ,y: 300 } 
+				})
+				.on("dragstart", function(d){	//dragstart的监听器	
+					console.log("拖拽开始");	
+				})
+				.on("dragend", function(d){		//dragend的监听器
+					console.log("拖拽结束");
+				})
+				.on("drag", function(d){		//drag的监听器
+					d3.select(this)		//选择当前被拖拽的元素
+						//将d3.event.x赋值给被绑定的数据，再将cx属性设置为该值
+						.attr("cx", d.cx = d3.event.x )
+						//将d3.event.y赋值给被绑定的数据，再将cy属性设置为该值
+						.attr("cy", d.cy = d3.event.y );
+				}); 
+		
+svg.selectAll("circle")
+			.data(circles)		//绑定数据
+			.enter()
+			.append("circle")
+			.attr("cx",function(d){ return d.cx; })
+			.attr("cy",function(d){ return d.cy; })
+			.attr("r",function(d){ return d.r; })
+			.attr("fill","black")
+			.call(drag);		//调用drag函数
+					
+	
+</script> 
+
+</body>
+
+</html>
